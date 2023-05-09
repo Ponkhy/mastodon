@@ -47,7 +47,6 @@ jobs:
         id: meta
         with:
           images: |
-            tootsuite/mastodon
             ghcr.io/ponkhy/mastodon
           flavor: |
             latest=auto
