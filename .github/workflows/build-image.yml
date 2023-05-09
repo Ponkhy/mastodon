@@ -33,7 +33,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        if: github.repository == 'mastodon/mastodon' && github.event_name != 'pull_request'
+        if: github.repository == 'ponkhy/mastodon' && github.event_name != 'pull_request'
 
       - name: Log in to the Github Container registry
         uses: docker/login-action@v2
@@ -41,14 +41,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: github.repository == 'mastodon/mastodon' && github.event_name != 'pull_request'
+        if: github.repository == 'ponkhy/mastodon' && github.event_name != 'pull_request'
 
       - uses: docker/metadata-action@v4
         id: meta
         with:
           images: |
             tootsuite/mastodon
-            ghcr.io/mastodon/mastodon
+            ghcr.io/ponkhy/mastodon
           flavor: |
             latest=auto
           tags: |
@@ -57,13 +57,19 @@ jobs:
             type=pep440,pattern=v{{major}}.{{minor}}
             type=ref,event=pr
 
+      - name: Generate version suffix
+        id: version_vars
+        if: github.repository == 'ponkhy/mastodon' && github.event_name == 'push' && github.ref_name == 'main'
+        run: |
+          echo mastodon_version_suffix=+edge-$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
+
       - uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           provenance: false
           builder: ${{ steps.buildx.outputs.name }}
-          push: ${{ github.repository == 'mastodon/mastodon' && github.event_name != 'pull_request' }}
+          push: ${{ github.repository == 'ponkhy/mastodon' && github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
