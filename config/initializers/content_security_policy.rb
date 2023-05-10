@@ -7,7 +7,9 @@ def host_to_url(str)
 end
 
 base_host = Rails.configuration.x.web_domain
-csp_host  = host_to_url(ENV['S3_CSP_HOST'])
+
+csp_host   = host_to_url(ENV['S3_CSP_HOST'])
+csp_host ||= host_to_url(base_host)
 
 assets_host   = Rails.configuration.action_controller.asset_host
 assets_host ||= host_to_url(base_host)
